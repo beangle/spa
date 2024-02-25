@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+  <input id="message" size="100" value="C:\Users\duant\Desktop\煜熵投标文件-封面.pdf"/>
+  <button id="print_button" onclick="printIt()">打印</button>
+  <button id="status_button" onclick="getStatus()">查看状态</button>
+  <hr>
+  <div id="notification"></div>
+  <script type="text/javascript">
+  Date.prototype.pattern=function(fmt) {
+      var o = {
+      "M+" : this.getMonth()+1, //月份
+      "d+" : this.getDate(), //日
+      "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12, //小时
+      "H+" : this.getHours(), //小时
+      "m+" : this.getMinutes(), //分
+      "s+" : this.getSeconds(), //秒
+      "q+" : Math.floor((this.getMonth()+3)/3), //季度
+      "S" : this.getMilliseconds() //毫秒
+      };
+      var week = {
+      "0" : "/u65e5",
+      "1" : "/u4e00",
+      "2" : "/u4e8c",
+      "3" : "/u4e09",
+      "4" : "/u56db",
+      "5" : "/u4e94",
+      "6" : "/u516d"
+      };
+      if(/(y+)/.test(fmt)){
+          fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+      }
+      if(/(E+)/.test(fmt)){
+          fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);
+      }
+      for(var k in o){
+          if(new RegExp("("+ k +")").test(fmt)){
+              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+          }
+      }
+      return fmt;
+  }
+function SpaClient(){
+  this.socket=null;
+  this.connected=false;
+  this.printer=null;
+
+  var self=this;
+  this.initSocket =function(){
+    try{
+      var socket = new WebSocket('ws://localhost:8888');
+      // 监听消息
+      socket.onmessage = function(event) {
+        var retData=event.data.toString();
+        if(retData.indexOf('name')>0){
+          try{
+            eval("var rs = "+retData)
+            self.printer=rs.message
+            self.notify(self.printerInfo());
+          }catch(e){
+            self.notify(retData);
+          }
+        }else{
+          self.notify(retData);
+        }
+      };
+      // 监听Socket的关闭
+      socket.onclose = function(event) {
+        console.log('connection closed');
+        self.close();
+      };
+      socket.onerror = function(event) {
+        self.notify("无法连接本机打印服务");
+        self.close();
+      };
+      socket.onopen = function(event) {
+        self.notify("本地打印服务连接成功");
+        self.connected=true;
+      };
+      this.socket=socket;
+    }catch(e){
+      self.notify("无法连接本机打印服务");
+    }
+  }
+
+  this.notify=function (msg){
+    document.getElementById("notification").innerHTML=msg;
+  }
+
+  this.close=function(){
+    this.socket=null;
+    this.connected=false;
+  }
+
+  this.getSocket=function(){
+    if(!this.connected || null==this.socket){
+      this.initSocket();
+    }
+    return this.socket;
+  }
+
+  this.send=function(message){
+    if(this.connected){
+      if(this.printer.status!="Idle"){
+        self.notify("打印机没有处于空闲状态,请稍等,"+(new Date()).pattern("yyyy-MM-dd HH:mm:ss"));
+        return;
+      }
+      this.getSocket().send(message);
+    }else{
+      self.notify("本地打印服务尚未连接,"+(new Date()).pattern("yyyy-MM-dd HH:mm:ss"));
+    }
+  }
+
+  this.printerInfo=function(){
+    var desc="打印机:"+this.printer.name
+    desc +=" 状态:"+this.printer.status
+    desc +=" 彩色支持:"+this.printer.properties['color-supported'];
+    return desc;
+  }
+  this.initSocket();
+}
+var spa_client =new SpaClient();
+
+setInterval("spa_client.send('Status')",5000);
+
+setTimeout("spa_client.send('Status')",1500);
+
+function getStatus(){
+  spa_client.send("Status");
+}
+
+function printIt(){
+  document.getElementById("print_button").disabled=true;
+  document.getElementById("notification").value="";
+  var msg =document.getElementById("message").value;
+  spa_client.send("Print,url="+msg);
+  setTimeout("document.getElementById('print_button').disabled=false",2000);
+}
+</script>
+</body>
+</html>
