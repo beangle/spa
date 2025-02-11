@@ -25,7 +25,7 @@ ThisBuild / homepage := Some(url("http://beangle.github.io/spa/index.html"))
 
 val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.6.26"
 val java_websocket = "org.java-websocket" % "Java-WebSocket" % "1.6.0"
-val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.3.8"
+val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.4.8"
 
 lazy val root = (project in file("."))
   .settings(
