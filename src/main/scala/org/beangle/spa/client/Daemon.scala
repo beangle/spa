@@ -30,7 +30,7 @@ import org.beangle.spa.client
 import org.beangle.spa.client.Response.Status
 
 import java.io.*
-import java.net.{InetAddress, InetSocketAddress, URI, URL}
+import java.net.{InetAddress, InetSocketAddress, URI}
 import java.security.KeyStore
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 import javax.print.PrintServiceLookup
