@@ -23,9 +23,8 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle SPA Library"
 ThisBuild / homepage := Some(url("http://beangle.github.io/spa/index.html"))
 
-val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.6.32"
-val java_websocket = "org.java-websocket" % "Java-WebSocket" % "1.6.0"
-val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.4.18"
+val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.7.0"
+val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.5.0"
 
 lazy val root = (project in file("."))
   .settings(

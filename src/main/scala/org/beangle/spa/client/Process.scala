@@ -21,6 +21,8 @@ import org.beangle.commons.io.Files
 import org.beangle.commons.lang.{Charsets, Strings}
 import org.beangle.commons.logging.Logging
 
+import java.nio.charset.StandardCharsets
+
 object Process extends Logging {
 
   def exec(config: Config, commands: String*): (Int, String) = {
@@ -47,7 +49,7 @@ object Process extends Logging {
     pro.waitFor()
     var charset = Env.charset
     if (command != "print" && Env.isWindows) {
-      charset = Charsets.UTF_16LE
+      charset = StandardCharsets.UTF_16LE
     }
     val logContent = Files.readString(log, charset)
     (pro.exitValue(), logContent)
