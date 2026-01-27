@@ -42,15 +42,15 @@ object Ecard {
 
   def main(args: Array[String]): Unit = {
     val openUrl = base + "/device/open?port=100&psam_card_position=2"
-    println(HttpUtils.getText(openUrl))
-    println(HttpUtils.getText(base + "/device/beep?count=2"))
+    println(HttpUtils.get(openUrl))
+    println(HttpUtils.get(base + "/device/beep?count=2"))
 
     var auth_url = base + authUrl
     auth_url = Strings.replace(auth_url, "{appid}", appId)
     auth_url = Strings.replace(auth_url, "{appsecret}", appKey)
     auth_url = Strings.replace(auth_url, "{termid}", termId)
 
-    var rs = HttpUtils.getText(auth_url)
+    var rs = HttpUtils.get(auth_url)
     //{"session_key":"133BED01099BD522232C6CA67074ACA6","termseqno":1,"retcode":0,"message":"成功"}
     var session_key: String = ""
     var termseqno: Int = 0
@@ -69,7 +69,7 @@ object Ecard {
     var request_card_url = base + requestCardUrl
     var cardphyid: String = ""
     request_card_url = Strings.replace(request_card_url, "{sessionkey}", session_key)
-    rs = HttpUtils.getText(request_card_url)
+    rs = HttpUtils.get(request_card_url)
     if (rs.status == 200) { //{"cardphyid":"FB016043"}
       cardphyid = Strings.substringBetween(rs.content.toString, """"cardphyid":"""", "\"")
       println("get cardphyid:" + cardphyid)
@@ -84,7 +84,7 @@ object Ecard {
     var paycnt: Int = 0
     readcard_url = Strings.replace(readcard_url, "{sessionkey}", session_key)
     readcard_url = Strings.replace(readcard_url, "{cardphyid}", cardphyid)
-    rs = HttpUtils.getText(readcard_url)
+    rs = HttpUtils.get(readcard_url)
     if (rs.status != 200) {
       println("Cannot readcard:" + readcard_url)
     } else { //{"CF_NAME":"测试","CF_STUEMPNO":"ykt002","CF_CARDBAL":0,"CF_PAYCNT":"0","CF_DPSCNT":"0","CF_CARDMODE":"A","CF_CARDNO":"75302","CF_CARDSTRUCTVER":"3","cardmode":"A","cardphyid":"FB016043"}
@@ -153,7 +153,6 @@ object Ecard {
       conn.setRequestMethod(HttpMethods.GET)
       conn.setDoOutput(false)
       conn.setUseCaches(false)
-      Https.noverify(conn)
       if (conn.getResponseCode == 200) {
         in =
           if (null == encoding) new BufferedReader(new InputStreamReader(conn.getInputStream))

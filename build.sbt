@@ -2,7 +2,7 @@ import org.beangle.parent.Dependencies.*
 import org.beangle.parent.Settings.*
 
 ThisBuild / organization := "org.beangle.spa"
-ThisBuild / version := "0.0.6-SNAPSHOT"
+ThisBuild / version := "0.0.6"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,7 +23,7 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle SPA Library"
 ThisBuild / homepage := Some(url("http://beangle.github.io/spa/index.html"))
 
-val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.7.0"
+val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.8.1"
 val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.5.0"
 
 lazy val root = (project in file("."))

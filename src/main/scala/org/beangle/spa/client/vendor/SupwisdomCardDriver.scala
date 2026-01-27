@@ -45,24 +45,24 @@ class SupwisdomCardDriver extends CardDriver with Logging {
   var opened: Boolean = _
 
   def open(): Unit = {
-    HttpUtils.getText(base + "/device/close")
+    HttpUtils.get(base + "/device/close")
 
     val openUrl = base + "/device/open?port=100&psam_card_position=1"
-    val rs = HttpUtils.getText(openUrl)
+    val rs = HttpUtils.get(openUrl)
     opened = rs.status == 200
     if (logger.isDebugEnabled) {
       logger.debug(rs.getOrElse("--"))
     }
 
     if (!opened) {
-      val rs = HttpUtils.getText(base + "/device/open?port=100&psam_card_position=2")
+      val rs = HttpUtils.get(base + "/device/open?port=100&psam_card_position=2")
       opened = rs.status == 200
       if (logger.isDebugEnabled) {
         logger.debug(rs.getOrElse("--"))
       }
     }
     if (opened) {
-      HttpUtils.getText(base + "/device/beep?count=2")
+      HttpUtils.get(base + "/device/beep?count=2")
     }
     logger.info("open card driver " + (if (opened) " success!" else "FAILURE"))
   }
@@ -72,7 +72,7 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     var request_card_url = base + requestCardUrl
     var cardphyid: String = ""
     request_card_url = Strings.replace(request_card_url, "{sessionkey}", session_key)
-    var rs = HttpUtils.getText(request_card_url)
+    var rs = HttpUtils.get(request_card_url)
     if (rs.status != 200) { //{"retcode":99,"retmsg":"未寻到卡 : "}
       logger.info("Cannot request card " + request_card_url)
     } else { //{"cardphyid":"FB016043"}
@@ -89,7 +89,7 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     var paycnt: Int = 0
     readcard_url = Strings.replace(readcard_url, "{sessionkey}", session_key)
     readcard_url = Strings.replace(readcard_url, "{cardphyid}", cardphyid)
-    rs = HttpUtils.getText(readcard_url)
+    rs = HttpUtils.get(readcard_url)
     if (rs.status != 200) {
       logger.info("Cannot readcard:" + readcard_url)
     } else { //{"CF_NAME":"测试","CF_STUEMPNO":"ykt002","CF_CARDBAL":0,"CF_PAYCNT":"0","CF_DPSCNT":"0","CF_CARDMODE":"A","CF_CARDNO":"75302","CF_CARDSTRUCTVER":"3","cardmode":"A","cardphyid":"FB016043"}
@@ -167,7 +167,7 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     auth_url = Strings.replace(auth_url, "{appsecret}", appKey)
     auth_url = Strings.replace(auth_url, "{termid}", termId.toString)
 
-    val rs = HttpUtils.getText(auth_url)
+    val rs = HttpUtils.get(auth_url)
     if (rs.status != 200) {
       logger.info("auth failure")
     } else {
@@ -208,7 +208,6 @@ class SupwisdomCardDriver extends CardDriver with Logging {
       conn.setRequestMethod(HttpMethods.GET)
       conn.setDoOutput(false)
       conn.setUseCaches(false)
-      Https.noverify(conn)
       in =
         if (null == encoding) new BufferedReader(new InputStreamReader(conn.getInputStream))
         else new BufferedReader(new InputStreamReader(conn.getInputStream, encoding))
