@@ -18,8 +18,8 @@
 package org.beangle.spa.client.vendor
 
 import org.beangle.commons.lang.Strings
-import org.beangle.commons.logging.Logging
-import org.beangle.commons.net.http.{HttpMethods, HttpUtils, Https}
+import org.beangle.commons.net.http.{HttpMethods, HttpUtils}
+import org.beangle.spa.Logger
 import org.beangle.spa.client.Response.Status
 import org.beangle.spa.client.{CardDriver, Request, Response}
 
@@ -28,7 +28,7 @@ import java.net.{HttpURLConnection, URI, URL}
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalTime}
 
-class SupwisdomCardDriver extends CardDriver with Logging {
+class SupwisdomCardDriver extends CardDriver {
   var appId: String = _
   var appKey: String = _
   var termId: Int = _
@@ -50,21 +50,21 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     val openUrl = base + "/device/open?port=100&psam_card_position=1"
     val rs = HttpUtils.get(openUrl)
     opened = rs.status == 200
-    if (logger.isDebugEnabled) {
-      logger.debug(rs.getOrElse("--"))
+    if (Logger.isDebugEnabled) {
+      Logger.debug(rs.getOrElse("--"))
     }
 
     if (!opened) {
       val rs = HttpUtils.get(base + "/device/open?port=100&psam_card_position=2")
       opened = rs.status == 200
-      if (logger.isDebugEnabled) {
-        logger.debug(rs.getOrElse("--"))
+      if (Logger.isDebugEnabled) {
+        Logger.debug(rs.getOrElse("--"))
       }
     }
     if (opened) {
       HttpUtils.get(base + "/device/beep?count=2")
     }
-    logger.info("open card driver " + (if (opened) " success!" else "FAILURE"))
+    Logger.info("open card driver " + (if (opened) " success!" else "FAILURE"))
   }
 
   /** 支付 */
@@ -74,7 +74,7 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     request_card_url = Strings.replace(request_card_url, "{sessionkey}", session_key)
     var rs = HttpUtils.get(request_card_url)
     if (rs.status != 200) { //{"retcode":99,"retmsg":"未寻到卡 : "}
-      logger.info("Cannot request card " + request_card_url)
+      Logger.info("Cannot request card " + request_card_url)
     } else { //{"cardphyid":"FB016043"}
       cardphyid = Strings.substringBetween(rs.content.toString, """"cardphyid":"""", "\"")
     }
@@ -91,7 +91,7 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     readcard_url = Strings.replace(readcard_url, "{cardphyid}", cardphyid)
     rs = HttpUtils.get(readcard_url)
     if (rs.status != 200) {
-      logger.info("Cannot readcard:" + readcard_url)
+      Logger.info("Cannot readcard:" + readcard_url)
     } else { //{"CF_NAME":"测试","CF_STUEMPNO":"ykt002","CF_CARDBAL":0,"CF_PAYCNT":"0","CF_DPSCNT":"0","CF_CARDMODE":"A","CF_CARDNO":"75302","CF_CARDSTRUCTVER":"3","cardmode":"A","cardphyid":"FB016043"}
       val s = rs.content.toString
       stdno = Strings.substringBetween(s, """"CF_STUEMPNO":"""", "\"")
@@ -121,12 +121,12 @@ class SupwisdomCardDriver extends CardDriver with Logging {
     var res = this.getTextPost(URI.create(payprepare_url).toURL, "utf-8")
 
     if (res._1 != 200) {
-      logger.info("准备失败:" + res._2)
+      Logger.info("准备失败:" + res._2)
       termseqno += 1
     } else {
       val s = res._2
-      if (logger.isDebugEnabled) {
-        logger.debug(s)
+      if (Logger.isDebugEnabled) {
+        Logger.debug(s)
       }
       refno = Strings.substringBetween(s, """"refno":"""", "\"")
       //termseqno = Strings.substringBetween(s, """"termseqno":""", ",").toInt //这个字段不要取
@@ -150,11 +150,11 @@ class SupwisdomCardDriver extends CardDriver with Logging {
 
     res = this.getTextPost(URI.create(confirm_url).toURL, "utf-8")
     if (res._1 != 200) {
-      logger.info(stdno + "消费失败")
+      Logger.info(stdno + "消费失败")
       Response(Request.CardPay, Status.Error, "消费失败:" + res._2)
     } else {
       val s = res._2
-      logger.info(stdno + "消费成功" + s)
+      Logger.info(stdno + "消费成功" + s)
       //{"refno":"20191014105411576477","accdate":"20191014","paycnt":0,"tac":"FFFFFFFF","cardaftbal":996,"cardphyid":"FB016043","next_termseqno":10,"retcode":0,"message":"成功"}
       termseqno = Strings.substringBetween(s, """"next_termseqno":""", ",").toInt
       Response(Request.CardPay, Status.Ok, s"消费成功。卡号:$stdno,物理卡ID:$cardphyid,交易参考号:$refno,余额:${cardbefbal - price}分")
@@ -169,12 +169,12 @@ class SupwisdomCardDriver extends CardDriver with Logging {
 
     val rs = HttpUtils.get(auth_url)
     if (rs.status != 200) {
-      logger.info("auth failure")
+      Logger.info("auth failure")
     } else {
       val s = rs.getText
       session_key = Strings.substringBetween(s, """"session_key":"""", "\"")
       termseqno = Strings.substringBetween(s, """"termseqno":""", ",").toInt
-      logger.info("get session key:" + session_key + ", and termseqno is" + termseqno)
+      Logger.info("get session key:" + session_key + ", and termseqno is" + termseqno)
     }
   }
 

@@ -19,21 +19,23 @@ package org.beangle.spa.client
 
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
-import org.beangle.commons.logging.Logging
-import Printer.Status
+import org.beangle.spa.Logger
+import org.beangle.spa.client.Printer.Status
 
+import java.time.Instant
 import javax.print.PrintService
 import javax.print.attribute.{Attribute, PrintServiceAttributeSet}
 import javax.print.event.{PrintServiceAttributeEvent, PrintServiceAttributeListener}
-import java.time.Instant
 
 object Printer {
   case class AttributeChanges(added: Map[String, Attribute], updated: Map[String, Attribute])
+
   def apply(service: PrintService, config: Config): Printer = {
     val p = new Printer(service.getName, config)
     p.update(service.getAttributes)
     p
   }
+
   class Status(val id: Int, val name: String)
 
   object Status {
@@ -60,15 +62,16 @@ object Printer {
   }
 }
 
-class Printer private (val name: String, config: Config) {
+class Printer private(val name: String, config: Config) {
 
   /** 当前状态
-    */
+   */
   var status: Printer.Status = Printer.Status.Idle
 
   var attributes = Collections.newMap[String, Any]
 
   var updatedAt: Instant = _
+
   def update(newAttributes: PrintServiceAttributeSet): Printer.AttributeChanges = {
     val newer = Collections.newMap[String, Attribute]
     newAttributes.toArray() foreach { a =>
@@ -141,12 +144,12 @@ class Printer private (val name: String, config: Config) {
   }
 }
 
-class PrinterListener(printer: Printer) extends PrintServiceAttributeListener with Logging {
+class PrinterListener(printer: Printer) extends PrintServiceAttributeListener {
 
   override def attributeUpdate(psae: PrintServiceAttributeEvent): Unit = {
     val changes = printer.update(psae.getAttributes)
-    changes.added foreach (kv => logger.info(s"+${kv._1}=${kv._2}"))
-    changes.updated foreach (kv => logger.info(s"+${kv._1}=${kv._2}"))
+    changes.added foreach (kv => Logger.info(s"+${kv._1}=${kv._2}"))
+    changes.updated foreach (kv => Logger.info(s"+${kv._1}=${kv._2}"))
   }
 
 }

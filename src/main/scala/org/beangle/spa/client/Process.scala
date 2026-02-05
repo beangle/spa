@@ -18,12 +18,12 @@
 package org.beangle.spa.client
 
 import org.beangle.commons.io.Files
-import org.beangle.commons.lang.{Charsets, Strings}
-import org.beangle.commons.logging.Logging
+import org.beangle.commons.lang.Strings
+import org.beangle.spa.Logger
 
 import java.nio.charset.StandardCharsets
 
-object Process extends Logging {
+object Process {
 
   def exec(config: Config, commands: String*): (Int, String) = {
     //从命令中萃取出shortName
@@ -40,9 +40,7 @@ object Process extends Logging {
     cmdString.append(" ").append(log.getAbsolutePath)
     cmdList.add(cmdString.toString())
     val pb = new ProcessBuilder(cmdList)
-    if (logger.isDebugEnabled) {
-      logger.debug(pb.command().toString)
-    }
+    Logger.debug(pb.command().toString)
 
     pb.inheritIO()
     val pro = pb.start()

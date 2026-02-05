@@ -17,15 +17,15 @@
 
 package org.beangle.spa.client
 
-import java.util.{Timer, TimerTask}
+import org.beangle.spa.Logger
 
-import org.beangle.commons.logging.Logging
+import java.util.{Timer, TimerTask}
 
 object TaskMonitor {
 
-  def start(daemon:Daemon, config: Config,intervalSeconds: Int): Unit = {
+  def start(daemon: Daemon, config: Config, intervalSeconds: Int): Unit = {
     println(s"Starting Task Monitor after ${intervalSeconds} seconds")
-    val monitor = new TaskMonitor(daemon,config)
+    val monitor = new TaskMonitor(daemon, config)
     new Timer("Spa Task Monitor", true).schedule(
       monitor,
       new java.util.Date(System.currentTimeMillis + intervalSeconds * 1000),
@@ -33,25 +33,25 @@ object TaskMonitor {
   }
 }
 
-class TaskMonitor(daemon:Daemon,config: Config) extends TimerTask with Logging {
+class TaskMonitor(daemon: Daemon, config: Config) extends TimerTask {
 
   override def run(): Unit = {
     try {
-      daemon.printer foreach{ p=>
+      daemon.printer foreach { p =>
         p.fetchNativeStatuses()
       }
-      daemon.cardDriver foreach{ cd=>
-        if(!cd.ready){
+      daemon.cardDriver foreach { cd =>
+        if (!cd.ready) {
           cd.init()
         }
       }
       val browser = new Browser(config)
       if (!browser.isRunning) {
-        logger.info("Starting browser " + config.browser)
+        Logger.info("Starting browser " + config.browser)
         browser.start(config.serverUrl)
       }
     } catch {
-      case e: Throwable => logger.error("unexcepted error", e)
+      case e: Throwable => Logger.error("unexcepted error", e)
     }
   }
 }

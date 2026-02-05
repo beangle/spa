@@ -20,14 +20,13 @@ package org.beangle.spa.client
 import org.beangle.commons.io.IOs
 import org.beangle.commons.lang.time.Stopwatch
 import org.beangle.commons.lang.{Strings, SystemInfo}
-import org.beangle.commons.logging.Logging
 import org.beangle.doc.core.PrintOptions
 import org.beangle.doc.pdf.SPDConverter
+import org.beangle.spa.client.Response.Status
+import org.beangle.spa.{Logger, client}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.{DefaultSSLWebSocketServerFactory, WebSocketServer}
-import org.beangle.spa.client
-import org.beangle.spa.client.Response.Status
 
 import java.io.*
 import java.net.{InetAddress, InetSocketAddress, URI}
@@ -35,7 +34,7 @@ import java.security.KeyStore
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 import javax.print.PrintServiceLookup
 
-object Daemon extends Logging {
+object Daemon {
   def main(args: Array[String]): Unit = {
     val home = SystemInfo.properties.get("spa.home")
     if (home.isEmpty) {
@@ -60,7 +59,7 @@ object Daemon extends Logging {
       sslContext.init(kmf.getKeyManagers, tmf.getTrustManagers, null)
       daemon.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext))
     }
-    logger.info("Starting a browser to open the URL " + config.serverUrl)
+    Logger.info("Starting a browser to open the URL " + config.serverUrl)
     val browser = new Browser(config)
     browser.start(config.serverUrl)
     TaskMonitor.start(daemon, config, 10)
@@ -76,7 +75,7 @@ object Daemon extends Logging {
 
 import org.beangle.spa.client.Daemon.*
 
-class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer(address) with Logging {
+class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer(address) {
 
   /** 是否正在打印 */
   var printing = false
@@ -101,9 +100,9 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
       service.addPrintServiceAttributeListener(new PrinterListener(p))
     }
     if (printer.isEmpty) {
-      logger.error("Cannot find default printer")
+      Logger.error("Cannot find default printer")
     } else {
-      logger.info(s"Find default printer:${printer.get}")
+      Logger.info(s"Find default printer:${printer.get}")
     }
     printer.isDefined
   }
@@ -158,7 +157,7 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
       val fos = new FileOutputStream(file)
       var in: InputStream = null
       if (url.startsWith("http")) {
-        logger.info("dowloading " + url)
+        Logger.info("dowloading " + url)
         in = URI.create(url).toURL.openStream()
       } else {
         val originFile = new File(url)
@@ -175,14 +174,14 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
         val pdf = new File(file.getParent + File.separator + "temp.pdf")
         val pdfconverted = SPDConverter.getInstance().convert(file.toURI, pdf, new PrintOptions)
         if (!pdfconverted) {
-          logger.error("生成pdf失败")
+          Logger.error("生成pdf失败")
           conn.send(Response.print(Status.Error, "生成pdf失败"))
         } else {
           val rs = client.Process.exec(config, config.script("print"),
             "\"" + printer.get.name + "\"",
             "\"" + pdf.getAbsolutePath + "\"")
           if (0 == rs._1) {
-            logger.info("打印成功:" + url + ",用时:" + watch)
+            Logger.info("打印成功:" + url + ",用时:" + watch)
             conn.send(Response.print(Status.Ok, "打印成功"))
           } else {
             conn.send(Response.print(Status.PrintFail, "打印失败:" + rs._2))
@@ -190,7 +189,7 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
         }
       } else {
         conn.send(Response.print(Status.NoFile, "文件下载失败"))
-        logger.info("文件下载失败:" + url)
+        Logger.info("文件下载失败:" + url)
       }
     } catch {
       case e: Exception =>
@@ -223,7 +222,7 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
   }
 
   override def onStart(): Unit = {
-    logger.info(s"Openurp spa client started on ${getAddress.getHostName}:$getPort.")
+    Logger.info(s"Openurp spa client started on ${getAddress.getHostName}:$getPort.")
   }
 
 }

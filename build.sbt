@@ -23,13 +23,13 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle SPA Library"
 ThisBuild / homepage := Some(url("http://beangle.github.io/spa/index.html"))
 
-val beangle_commons = "org.beangle.commons" % "beangle-commons" % "5.8.1"
-val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.5.0"
+val beangle_commons = "org.beangle.commons" % "beangle-commons" % "6.0.0-SNAPSHOT"
+val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.5.2-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .settings(
     name := "beangle-spa-client",
     common,
     Compile / mainClass := Some("org.beangle.spa.client.Daemon"),
-    libraryDependencies ++= Seq(beangle_commons, logback_classic, logback_core, scalaxml, beangle_doc_pdf, java_websocket)
+    libraryDependencies ++= Seq(beangle_commons, logback_classic, logback_core, beangle_doc_pdf, java_websocket)
   )

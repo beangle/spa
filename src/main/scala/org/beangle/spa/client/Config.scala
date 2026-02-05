@@ -17,17 +17,18 @@
 
 package org.beangle.spa.client
 
-import java.io.{File, FileInputStream}
-
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.io.Files
 import org.beangle.commons.io.Files./
 import org.beangle.commons.lang.{Numbers, Strings}
+import org.beangle.commons.xml.Document
+
+import java.io.{File, FileInputStream}
 
 object Config {
 
   def apply(home: String): Config = {
-    val xml = scala.xml.XML.load(new FileInputStream(home + / + "conf" + / + "spa.xml"))
+    val xml = Document.parse(new FileInputStream(home + / + "conf" + / + "spa.xml"))
     val config = new Config(home)
     val portNum = (xml \ "@port").text
     var port = 8888
