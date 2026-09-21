@@ -46,7 +46,7 @@ object PDFGenerator {
         pdf.delete()
       }
     }
-    SPDConverter.getInstance().convert(html.toURI, pdf, new PrintOptions())
+    SPDConverter.convert(html.toURI, pdf, new PrintOptions())
     //    SPD.convertFile(html, pdf, Map("orientation" -> "Portrait", "dpi" -> "200"))
     if (pdf.exists()) {
       println("PDF Generated:" + pdf.getAbsolutePath)

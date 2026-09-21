@@ -26,6 +26,7 @@ import java.time.Instant
 import javax.print.PrintService
 import javax.print.attribute.{Attribute, PrintServiceAttributeSet}
 import javax.print.event.{PrintServiceAttributeEvent, PrintServiceAttributeListener}
+import scala.compiletime.uninitialized
 
 object Printer {
   case class AttributeChanges(added: Map[String, Attribute], updated: Map[String, Attribute])
@@ -70,7 +71,7 @@ class Printer private(val name: String, config: Config) {
 
   var attributes = Collections.newMap[String, Any]
 
-  var updatedAt: Instant = _
+  var updatedAt: Instant = uninitialized
 
   def update(newAttributes: PrintServiceAttributeSet): Printer.AttributeChanges = {
     val newer = Collections.newMap[String, Attribute]

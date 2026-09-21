@@ -172,7 +172,7 @@ class Daemon(config: Config, address: InetSocketAddress) extends WebSocketServer
       IOs.close(in, fos)
       if (file.exists()) {
         val pdf = new File(file.getParent + File.separator + "temp.pdf")
-        val pdfconverted = SPDConverter.getInstance().convert(file.toURI, pdf, new PrintOptions)
+        val pdfconverted = SPDConverter.convert(file.toURI, pdf, new PrintOptions)
         if (!pdfconverted) {
           Logger.error("生成pdf失败")
           conn.send(Response.print(Status.Error, "生成pdf失败"))

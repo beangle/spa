@@ -24,6 +24,7 @@ import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.commons.xml.Document
 
 import java.io.{File, FileInputStream}
+import scala.compiletime.uninitialized
 
 object Config {
 
@@ -62,8 +63,8 @@ object Config {
 }
 
 class Config(val home: String) {
-  var serverUrl: String = _
-  var port: Int = _
+  var serverUrl: String = uninitialized
+  var port: Int = uninitialized
   var keystore: Option[String] = None
   var keypass: Option[String] = None
   var storepass: Option[String] = None

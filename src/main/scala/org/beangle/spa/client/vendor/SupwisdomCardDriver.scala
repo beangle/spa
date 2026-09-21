@@ -27,14 +27,15 @@ import java.io.{BufferedReader, InputStreamReader}
 import java.net.{HttpURLConnection, URI, URL}
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalTime}
+import scala.compiletime.uninitialized
 
 class SupwisdomCardDriver extends CardDriver {
-  var appId: String = _
-  var appKey: String = _
-  var termId: Int = _
+  var appId: String = uninitialized
+  var appKey: String = uninitialized
+  var termId: Int = uninitialized
 
-  var session_key: String = _
-  var termseqno: Int = _
+  var session_key: String = uninitialized
+  var termseqno: Int = uninitialized
   var base = "http://localhost:8787/v4"
 
   val authUrl = "/auth?appid={appid}&appsecret={appsecret}&termid={termid}&online=true&scope=payment"
@@ -42,7 +43,7 @@ class SupwisdomCardDriver extends CardDriver {
   val readcardUrl = "/readcard/{cardphyid}?session_key={sessionkey}&fields=CF_NAME%3BCF_STUEMPNO%3BCF_CARDBAL%3BCF_PAYCNT%3BCF_DPSCNT"
   var onlinepayprepare = "/onlinepayprepare/{cardphyid}"
 
-  var opened: Boolean = _
+  var opened: Boolean = uninitialized
 
   def open(): Unit = {
     HttpUtils.get(base + "/device/close")
@@ -197,7 +198,7 @@ class SupwisdomCardDriver extends CardDriver {
     "{open:" + opened + ",auth:" + authResult + ",status:\"" + (if (authResult) "Ok" else "Error") + "\"}"
   }
 
-  private[this] def getTextPost(url: URL, encoding: String): (Int, String) = {
+  private def getTextPost(url: URL, encoding: String): (Int, String) = {
     var conn: HttpURLConnection = null
     val Timeout = 15 * 1000
     var in: BufferedReader = null

@@ -27,7 +27,7 @@ object ProcessTest {
     //    val cmdName = Process.findCmdName("""C:\Users\duant\tmp\beangle-edu-spa-client\bin\..\bin\printer_status.bat""")
     //    print(cmdName)
 
-    val pdfconverted = SPDConverter.getInstance().convert(
+    val pdfconverted = SPDConverter.convert(
       new File("C:\\Users\\duant\\tmp\\spa\\client\\temp\\temp.html").toURI,
       new File("C:\\Users\\duant\\tmp\\spa\\client\\temp\\temp.pdf"),
       new PrintOptions)
