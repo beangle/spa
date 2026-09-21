@@ -6,7 +6,7 @@ version := "0.0.8"
 
 scmInfo := Some(
   ScmInfo(
-    url("https://github.com/beangle/spa"),
+    uri("https://github.com/beangle/spa"),
     "scm:git@github.com:beangle/spa.git"
   )
 )
@@ -16,12 +16,12 @@ developers := List(
     id = "chaostone",
     name = "Tihua Duan",
     email = "duantihua@gmail.com",
-    url = url("http://github.com/duantihua")
+    url = uri("http://github.com/duantihua")
   )
 )
 
 description := "The Beangle SPA Library"
-homepage := Some(url("http://beangle.github.io/spa/index.html"))
+homepage := Some(uri("http://beangle.github.io/spa/index.html"))
 
 val beangle_commons = "org.beangle.commons" % "beangle-commons" % "6.3.7"
 val beangle_doc_pdf = "org.beangle.doc" % "beangle-doc-pdf" % "0.5.15"
